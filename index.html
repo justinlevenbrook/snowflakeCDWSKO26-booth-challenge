@@ -60,6 +60,8 @@
             <div class="space-y-2">
                 <input type="text" id="name" placeholder="Full Name" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-slate-50">
                 <input type="email" id="email" placeholder="Work Email" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-slate-50">
+                <!-- Company input removed since all attendees are from CDW -->
+            </div>
 
             <div class="pt-2">
                 <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Optional Coverage/Vertical</label>
@@ -100,10 +102,29 @@
         <div class="bg-slate-50 border-2 border-dashed border-slate-200 p-8 rounded-2xl relative">
             <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-3 text-[10px] font-bold text-slate-400 uppercase">Entry Confirmed</span>
             <div id="ticket-id" class="text-4xl font-black text-slate-800 my-2">WIN-XXXX</div>
-            <p class="text-sm text-blue-600 font-bold">Next Drawing: 4:00 PM</p>
         </div>
-        <p class="text-slate-500 text-xs px-4">Take a screenshot of this ticket. We'll reach out via email if you requested a team training session!</p>
-        <button onclick="location.reload()" class="text-slate-400 hover:text-slate-600 text-xs font-bold uppercase tracking-widest">Done</button>
+
+        <div class="text-left space-y-4 px-2">
+            <p class="text-sm font-semibold text-slate-800">Thanks for stopping by the Snowflake booth!</p>
+            <p class="text-[11px] text-slate-600 leading-relaxed">Here are your contacts who attended CDW's SKO:</p>
+            
+            <div class="grid grid-cols-1 gap-4 pt-1">
+                <div class="bg-slate-50 p-3 rounded-lg border-l-4 border-blue-400">
+                    <p class="text-[12px] font-extrabold text-slate-800">Jessica Black</p>
+                    <p class="text-[10px] text-slate-500 font-medium italic">"Public Sector" Partner Manager</p>
+                    <a href="mailto:jessica.black@snowflake.com" class="text-[11px] text-blue-600 font-semibold underline block mt-1">jessica.black@snowflake.com</a>
+                </div>
+                
+                <div class="bg-slate-50 p-3 rounded-lg border-l-4 border-blue-400">
+                    <p class="text-[12px] font-extrabold text-slate-800">Justin Levenbrook</p>
+                    <p class="text-[10px] text-slate-500 font-medium italic">"Private Sector" Partner Manager</p>
+                    <a href="mailto:justin.levenbrook@snowflake.com" class="text-[11px] text-blue-600 font-semibold underline block mt-1">justin.levenbrook@snowflake.com</a>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-slate-400 text-[10px] px-4 pt-2">Take a screenshot of this ticket for your records!</p>
+        <button onclick="location.reload()" class="text-slate-400 hover:text-slate-600 text-xs font-bold uppercase tracking-widest pt-4">Done</button>
     </div>
 
     <script>
@@ -130,7 +151,7 @@
                 c: 2 
             },
             { 
-                q: "Snowflake meets the most stringent compliance standards. Which certifications allow us to support highly regulated customers including Federal, State and Local, Healthcare customers?", 
+                q: "Snowflake meets the most stringent compliance standards. Which certifications allow us to support highly regulated customers including Federal, State and Local, Finserv and Healthcare customers?", 
                 a: ["SOC2 Type II only", "FedRAMP High, StateRAMP, and HIPAA/HITRUST", "Standard PCI-DSS", "No specialized government certifications"], 
                 c: 1 
             },
@@ -202,13 +223,14 @@
             formData.append('timestamp', new Date().toLocaleString());
             formData.append('name', document.getElementById('name').value);
             formData.append('email', document.getElementById('email').value);
+            formData.append('company', 'CDW');
             formData.append('vertical', document.getElementById('vertical').value);
             formData.append('requestTraining', document.getElementById('request-training').checked ? 'Yes' : 'No');
             formData.append('score', score + "/5");
             formData.append('ticketId', ticketId);
 
             try {
-                // Sending to Google Sheets (using no-cors to bypass redirect blocking)
+                // Sending to Google Sheets
                 await fetch(scriptURL, { 
                     method: 'POST', 
                     body: formData, 
