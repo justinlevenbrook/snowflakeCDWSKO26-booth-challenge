@@ -11,11 +11,12 @@
         .st-card { background: white; border-radius: 1rem; border: 1px solid #e6e9ef; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
         .st-btn { background: #ff4b4b; color: white; transition: all 0.2s ease; }
         .st-btn:active { transform: scale(0.98); }
+        .st-btn:disabled { background: #cbd5e1; cursor: not-allowed; }
         .snowflake-blue { color: #29b5e8; }
         .hidden { display: none; }
         .correct { border-color: #28a745 !important; background: #e8f5e9; color: #155724; }
         .incorrect { border-color: #dc3545 !important; background: #fdf2f2; color: #721c24; }
-        select, input { font-size: 16px !important; } /* Prevents iOS zoom on focus */
+        select, input { font-size: 16px !important; } 
     </style>
 </head>
 <body class="p-4 flex items-center justify-center min-h-screen">
@@ -29,8 +30,8 @@
         </div>
         <h1 class="text-3xl font-extrabold text-slate-800">Partner Sales Challenge</h1>
         <p class="text-slate-600">Test your Data Cloud knowledge and enter our leadership raffle drawing.</p>
-        <div class="bg-blue-50 p-4 rounded-lg text-sm text-blue-700 font-bold uppercase tracking-wider">
-            Prize: Executive re:Invent Survival Kit
+        <div class="bg-blue-50 p-4 rounded-lg text-sm text-blue-700 font-bold uppercase tracking-wider text-center">
+            Prize: Snowflake LA28 zip up Jacket
         </div>
         <button onclick="startQuiz()" class="st-btn w-full py-4 rounded-xl font-bold text-lg shadow-lg">START CHALLENGE</button>
     </div>
@@ -63,15 +64,25 @@
             </div>
 
             <div class="pt-2">
-                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Optional Growth Intel</label>
+                <label class="text-[10px] font-bold text-slate-400 uppercase ml-1">Optional Coverage/Vertical</label>
                 <select id="vertical" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-white text-sm mt-1">
-                    <option value="">Select Covered Vertical...</option>
-                    <option value="Healthcare">Healthcare & Life Sciences</option>
-                    <option value="Financial">Financial Services</option>
-                    <option value="Retail">Retail & CPG</option>
-                    <option value="Manufacturing">Manufacturing</option>
-                    <option value="Public">Public Sector</option>
-                    <option value="Other">General / Other</option>
+                    <option value="">Select Covered Vertical/Territory...</option>
+                    <option value="Federal">Federal</option>
+                    <option value="State and Local">State and Local</option>
+                    <option value="K12 EDU">K12 EDU</option>
+                    <option value="Hi-Ed">Hi-Ed</option>
+                    <option value="Small Business">Small Business</option>
+                    <option value="Commercial Territory East">Commercial Territory East</option>
+                    <option value="Commercial Territory West">Commercial Territory West</option>
+                    <option value="Commercial Majors East">Commercial Majors East</option>
+                    <option value="Commercial Majors Central">Commercial Majors Central</option>
+                    <option value="Commercial Majors West">Commercial Majors West</option>
+                    <option value="Strategic Enterprise Northeast">Strategic Enterprise Northeast</option>
+                    <option value="Strategic Enterprise Southeast">Strategic Enterprise Southeast</option>
+                    <option value="Strategic Enterprise SouthCentral">Strategic Enterprise SouthCentral</option>
+                    <option value="Strategic Enterprise Central">Strategic Enterprise Central</option>
+                    <option value="Strategic Enterprise Mid-Central">Strategic Enterprise Mid-Central</option>
+                    <option value="Strategic Enterprise West">Strategic Enterprise West</option>
                 </select>
             </div>
 
@@ -82,7 +93,7 @@
                 </label>
             </div>
 
-            <button type="submit" class="st-btn w-full py-4 rounded-xl font-bold shadow-lg">ENTER RAFFLE</button>
+            <button type="submit" id="submit-btn" class="st-btn w-full py-4 rounded-xl font-bold shadow-lg">ENTER RAFFLE</button>
         </form>
     </div>
 
@@ -98,6 +109,12 @@
     </div>
 
     <script>
+        // --- CONFIGURATION ---
+        const scriptURL = "https://script.google.com/macros/s/AKfycbyJnHD5hb8Q-iMs824nDlKJdXJlRd1v8vf_UWVORhf4M0UbiDrHjvv1AfT4dMvIm7D5WA/exec"; 
+
+        // Quiz State
+        let currentQ = 0;
+        let score = 0;
         const quizData = [
             { 
                 q: "Snowflake is a global platform. Which cloud providers can you deploy us on today?", 
@@ -105,7 +122,7 @@
                 c: 2 
             },
             { 
-                q: "Beyond 'Trusted,' what differentiates Snowflake's architecture from competitors?", 
+                q: "In addition to being 'Easy, Connected and Trusted', what differentiates Snowflake's architecture from our competitors?", 
                 a: ["Snowflake requires manual cluster tuning", "Snowflake is a fully managed service with zero maintenance overhead", "Snowflake only supports SQL", "Snowflake relies on third-party governance"], 
                 c: 1 
             },
@@ -115,27 +132,24 @@
                 c: 2 
             },
             { 
-                q: "Which incentive model allows Partners to own the commercial relationship and drive higher margins?", 
-                a: ["Referral/OTRA", "Full Resale Model", "Standard Co-Sell", "Marketing Sponsorship"], 
+                q: "Snowflake meets the most stringent compliance standards. Which certifications allow us to support Federal, State, and Healthcare customers?", 
+                a: ["SOC2 Type II only", "FedRAMP High, StateRAMP, and HIPAA/HITRUST", "Standard PCI-DSS", "No specialized government certifications"], 
                 c: 1 
             },
             { 
-                q: "What program allows customers to use existing Snowflake spend to buy partner products on the Marketplace?", 
-                a: ["Marketplace Capacity Drawdown", "Snowpark Credits", "Referral Fee Program", "Annual Co-Sell Bonus"], 
+                q: "How does Snowflake's Azure presence help CDW sellers win with customers who have a Microsoft Azure Consumption Commitment (MACC)?", 
+                a: ["Snowflake spend on Azure can be applied toward a customer's MACC, driving mutual cloud growth", "Snowflake requires customers to move all data off Azure", "Snowflake only runs in AWS data centers", "Snowflake replaces the need for Azure Active Directory"], 
                 c: 0 
             }
         ];
 
-        let currentQ = 0;
-        let score = 0;
-
-        function startQuiz() {
+        window.startQuiz = () => {
             document.getElementById('start-screen').classList.add('hidden');
             document.getElementById('quiz-screen').classList.remove('hidden');
             renderQ();
-        }
+        };
 
-        function renderQ() {
+        const renderQ = () => {
             const data = quizData[currentQ];
             document.getElementById('progress').innerText = `QUESTION ${currentQ + 1}/5`;
             document.getElementById('question-text').innerText = data.q;
@@ -146,13 +160,13 @@
                 const b = document.createElement('button');
                 b.className = "w-full p-4 text-left border-2 border-slate-100 rounded-xl font-medium text-slate-700 active:bg-slate-50 transition-all text-sm";
                 b.innerText = opt;
-                b.onclick = () => check(i, b);
+                b.onclick = () => checkAnswer(i, b);
                 optCont.appendChild(b);
             });
             document.getElementById('next-btn').classList.add('hidden');
-        }
+        };
 
-        function check(idx, b) {
+        const checkAnswer = (idx, b) => {
             const correct = quizData[currentQ].c;
             const btns = document.getElementById('options').children;
             for(let btn of btns) btn.disabled = true;
@@ -165,9 +179,9 @@
                 btns[correct].classList.add('correct');
             }
             document.getElementById('next-btn').classList.remove('hidden');
-        }
+        };
 
-        function nextQuestion() {
+        window.nextQuestion = () => {
             currentQ++;
             if(currentQ < quizData.length) renderQ();
             else {
@@ -176,14 +190,43 @@
                 document.getElementById('final-score').innerText = score;
                 window.scrollTo(0,0);
             }
-        }
+        };
 
-        document.getElementById('lead-form').onsubmit = (e) => {
+        // Lead Submission to Google Sheets
+        document.getElementById('lead-form').onsubmit = async (e) => {
             e.preventDefault();
-            document.getElementById('lead-screen').classList.add('hidden');
-            document.getElementById('ticket-screen').classList.remove('hidden');
-            document.getElementById('ticket-id').innerText = "WIN-" + Math.floor(1000 + Math.random() * 9000);
-            window.scrollTo(0,0);
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerText = "Saving Entry...";
+
+            const ticketId = "WIN-" + Math.floor(1000 + Math.random() * 9000);
+            const formData = new FormData();
+            formData.append('timestamp', new Date().toLocaleString());
+            formData.append('name', document.getElementById('name').value);
+            formData.append('email', document.getElementById('email').value);
+            formData.append('company', document.getElementById('company').value);
+            formData.append('vertical', document.getElementById('vertical').value);
+            formData.append('requestTraining', document.getElementById('request-training').checked ? 'Yes' : 'No');
+            formData.append('score', score + "/5");
+            formData.append('ticketId', ticketId);
+
+            try {
+                // Sending to Google Sheets (using no-cors to bypass redirect blocking)
+                await fetch(scriptURL, { 
+                    method: 'POST', 
+                    body: formData, 
+                    mode: 'no-cors' 
+                });
+
+                document.getElementById('lead-screen').classList.add('hidden');
+                document.getElementById('ticket-screen').classList.remove('hidden');
+                document.getElementById('ticket-id').innerText = ticketId;
+                window.scrollTo(0,0);
+            } catch (err) {
+                console.error("Save failed", err);
+                btn.disabled = false;
+                btn.innerText = "Error - Try Again";
+            }
         };
     </script>
 </body>
