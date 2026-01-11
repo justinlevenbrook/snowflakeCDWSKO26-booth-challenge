@@ -60,7 +60,6 @@
             <div class="space-y-2">
                 <input type="text" id="name" placeholder="Full Name" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-slate-50">
                 <input type="email" id="email" placeholder="Work Email" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none bg-slate-50">
-                <!-- Company input removed since all attendees are from CDW -->
             </div>
 
             <div class="pt-2">
@@ -97,7 +96,7 @@
         </form>
     </div>
 
-    <!-- TICKET -->
+    <!-- TICKET / THANK YOU -->
     <div id="ticket-screen" class="w-full max-w-md st-card p-10 hidden text-center space-y-6">
         <div class="bg-slate-50 border-2 border-dashed border-slate-200 p-8 rounded-2xl relative">
             <span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-white px-3 text-[10px] font-bold text-slate-400 uppercase">Entry Confirmed</span>
@@ -212,11 +211,11 @@
         };
 
         // Lead Submission to Google Sheets
-        document.getElementById('lead-form').onsubmit = async (e) => {
+        document.getElementById('lead-form').onsubmit = (e) => {
             e.preventDefault();
             const btn = document.getElementById('submit-btn');
             btn.disabled = true;
-            btn.innerText = "Saving Entry...";
+            btn.innerText = "Entry Registered!";
 
             const ticketId = "WIN-" + Math.floor(1000 + Math.random() * 9000);
             const formData = new FormData();
@@ -229,23 +228,20 @@
             formData.append('score', score + "/5");
             formData.append('ticketId', ticketId);
 
-            try {
-                // Sending to Google Sheets
-                await fetch(scriptURL, { 
-                    method: 'POST', 
-                    body: formData, 
-                    mode: 'no-cors' 
-                });
+            // UI UPDATE: Show thank you screen immediately to avoid the "Blank Page" feel
+            document.getElementById('lead-screen').classList.add('hidden');
+            document.getElementById('ticket-screen').classList.remove('hidden');
+            document.getElementById('ticket-id').innerText = ticketId;
+            window.scrollTo(0,0);
 
-                document.getElementById('lead-screen').classList.add('hidden');
-                document.getElementById('ticket-screen').classList.remove('hidden');
-                document.getElementById('ticket-id').innerText = ticketId;
-                window.scrollTo(0,0);
-            } catch (err) {
-                console.error("Save failed", err);
-                btn.disabled = false;
-                btn.innerText = "Error - Try Again";
-            }
+            // DATA SYNC: Send to Google Sheets in the background
+            fetch(scriptURL, { 
+                method: 'POST', 
+                body: formData, 
+                mode: 'no-cors' 
+            }).catch(err => {
+                console.warn("Background sync failed, but user confirmed.", err);
+            });
         };
     </script>
 </body>
